@@ -29,7 +29,9 @@ export default function DashboardPage() {
     const [selectedState, setSelectedState] = useState<string | null>(null)
     const [mounted, setMounted] = useState(false)
     const [loading, setLoading] = useState(true)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [summary, setSummary] = useState<any>(null)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [mapData, setMapData] = useState<any[]>([])
 
     // Ensure charts and maps only render on client to avoid hydration mismatch
