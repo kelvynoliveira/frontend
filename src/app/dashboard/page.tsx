@@ -33,6 +33,8 @@ export default function DashboardPage() {
     const [summary, setSummary] = useState<any>(null)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [mapData, setMapData] = useState<any[]>([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [topBrands, setTopBrands] = useState<any[]>([])
 
     // Ensure charts and maps only render on client to avoid hydration mismatch
     useEffect(() => {
@@ -50,15 +52,21 @@ export default function DashboardPage() {
 
                 // Process summary to match component expectation
                 if (summaryRes && summaryRes.length > 0) {
+                    const avgSla = summaryRes.reduce((acc: any, curr: any) => acc + curr.sla, 0) / summaryRes.length;
+                    const totalLinksGlobal = summaryRes.reduce((acc: any, curr: any) => acc + curr.totalLinks, 0);
+
                     setSummary({
-                        globalSla: summaryRes[0].sla,
-                        globalSlaDelta: summaryRes[0].delta_previous_period,
+                        globalSla: avgSla,
+                        globalSlaDelta: 0,
                         totalOutages: 42,
                         outagesDelta: -5,
                         energyOutages: 12,
                         energyDelta: -15,
-                        totalLinks: summaryRes[0].total_links
+                        totalLinks: totalLinksGlobal
                     })
+
+                    const sortedBrands = [...summaryRes].sort((a: any, b: any) => b.sla - a.sla).slice(0, 5);
+                    setTopBrands(sortedBrands);
                 }
                 setMapData(mapRes || [])
             } catch (error) {
@@ -137,14 +145,10 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={[
-                                    { name: "UNINASSAU", sla: 99.8 },
-                                    { name: "UNAMA", sla: 99.5 },
-                                    { name: "UNG", sla: 99.2 },
-                                    { name: "UNIVERITAS", sla: 98.9 },
-                                    { name: "UNINORTE", sla: 98.4 },
+                                <BarChart layout="vertical" data={topBrands.length > 0 ? topBrands : [
+                                    { name: "Aguardando Dados", sla: 0 }
                                 ]}>
-                                    <XAxis type="number" domain={[95, 100]} hide />
+                                    <XAxis type="number" domain={['dataMin - 1', 100]} hide />
                                     <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} width={80} />
                                     <Tooltip
                                         cursor={{ fill: 'transparent' }}
